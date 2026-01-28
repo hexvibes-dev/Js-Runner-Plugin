@@ -1,0 +1,22 @@
+{
+  "name": "js-runner",
+  "version": "1.0.0",
+  "description": "Run JavaScript files with an integrated console",
+  "main": "src/main.js",
+  "repository": "",
+  "author": "Emilio.dev",
+  "license": "CC BY-NC 4.0",
+  "dependencies": {
+    "acode-plugin-types": "^1.11.7-patch.2",
+    "html-tag-js": "^2.4.15"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.8",
+    "jszip": "^3.10.1"
+  },
+  "scripts": {
+    "dev": "node esbuild.config.mjs --serve",
+    "build": "node esbuild.config.mjs"
+  },
+  "browserslist": "cover 100%,not android < 5"
+}
