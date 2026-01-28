@@ -1,10 +1,10 @@
 <div style="background: linear-gradient(135deg,#0f172a 0%,#0b1220 100%); padding:32px; border-radius:12px; color:#e6eef8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; line-height:1.6;">
 
-<div class="container">
+
 
 # 🔶 JS Runner Plugin para Acode
 
-<p class="lead" style="font-size: 14px;">Un plugin que integra un <strong>ejecutor de JavaScript con consola</strong> dentro del editor <strong>Acode</strong>. Ejecuta archivos <code>.js</code>, captura la salida de la consola y permite interacción directa con el DOM de la aplicación.</p>
+<p style="font-size: 14px; background: rgba(0,140,216,0.2); padding: 10px 20px; border-radius: 10px;">Un plugin que integra un <strong>ejecutor de JavaScript con consola</strong> dentro del editor <strong>Acode</strong>. Ejecuta archivos <code>.js</code>, captura la salida de la consola y permite interacción directa con el DOM de la aplicación.</p>
 
 <hr>
 
@@ -23,7 +23,7 @@
 
 <p style="color: rgba(255,255,255,0.8); font-size:14px;">🛠️ Instalación (resumen) </p>
 
-<div class="meta">Resumen</div>
+<p style="background: rgba(0,140,216,0.2); padding: 2px 8px; border-radius: 10px;">Resumen</p>
 
 
 <p> Presiona <strong>instalar</strong> </p>
@@ -36,16 +36,16 @@
 
 Bucle simple del 1 al 30
 
-<div class="code-wrap">
-<pre class="language-js"><code>for (let i = 1; i <= 30; i++) {
+<div>
+<pre><code>for (let i = 1; i <= 30; i++) {
   console.log(i);
 }</code></pre>
 </div>
 
 Estadísticas básicas (lista 1..30)
 
-<div class="code-wrap">
-<pre class="language-js"><code>const numeros = [...Array(31).keys()].slice(1);
+<div>
+<pre><code>const numeros = [...Array(31).keys()].slice(1);
 const stats = {
   total: numeros.length,
   suma: numeros.reduce((a, b) => a + b, 0),
@@ -59,8 +59,8 @@ console.log("Estadísticas:", stats);</code></pre>
 
 Clase, herencia y asincronía
 
-<div class="code-wrap">
-<pre class="language-js"><code>class Persona {
+<div>
+<pre><code>class Persona {
   constructor(nombre, edad) {
     this.nombre = nombre;
     this.edad = edad;
@@ -107,12 +107,12 @@ Durante el desarrollo se implementaron experimentos visuales para validar la cap
 - Elementos inyectados (burbujas, formas, efectos de color) posicionados con <code>position: fixed</code> y <code>z-index</code> alto para mostrarse por encima de la interfaz.
 - Eventos de interacción (clic, touch, seguimiento del cursor).
 
-<p class="note"><strong>Propósito técnico:</strong> demostrar que el plugin no solo ejecuta código y captura la consola, sino que también puede crear interfaces visuales y experiencias interactivas dentro del contexto de Acode.</p>
+<p style="background: rgba(0,140,216,0.2); padding: 10px 20px; border-radius: 10px;"><strong>Propósito técnico:</strong> demostrar que el plugin no solo ejecuta código y captura la consola, sino que también puede crear interfaces visuales y experiencias interactivas dentro del contexto de Acode.</p>
 
 Ejemplo de burbuja
 
-<div class="code-wrap">
-<pre class="language-js"><code>function crearBurbuja() {
+<div>
+<pre><code>function crearBurbuja() {
   const burbuja = document.createElement('div');
   const tamaño = Math.floor(Math.random() * 40) + 20;
   burbuja.style.position = 'fixed';
@@ -137,7 +137,7 @@ Ejemplo de burbuja
 
 🔐 Licencia
 
-<div class="license">
+<div style="background: rgba(0,140,216,0.2); padding: 10px 20px; border-radius: 10px;">
 CC BY-NC 4.0 License Adapted for Software
 
 Copyright (c) 2026 Emilio.dev
@@ -158,7 +158,7 @@ THE USE OF THE SOFTWARE.
 
 ## 🟣 Autor y contacto
 
-<div class="author">
+<div style="background: rgba(0,140,216,0.2); padding: 10px 20px; border-radius: 10px;">
   <strong>Emilio.dev</strong><br/>
   Contacto:<a href="mailto:kei.hexcode@gmail.com" style="color: #99ccff;"> 👤 Email</a>
 </div>
@@ -170,5 +170,5 @@ THE USE OF THE SOFTWARE.
 
 El JS Runner Plugin transforma Acode en un entorno interactivo para probar y depurar JavaScript rápidamente. Además de ejecutar código y capturar la consola, demuestra la capacidad de interactuar con el DOM de Acode, lo que permite crear herramientas visuales y experiencias interactivas integradas.
 
-</div>
-</div>
+
+</d>
