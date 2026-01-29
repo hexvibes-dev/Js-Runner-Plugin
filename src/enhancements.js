@@ -1,8 +1,10 @@
-// enhancements.js
+// enhancements.js (input-only suggestions + autopairing)
+// This trimmed version provides suggestions and autopairing only for the console input.
+// It does NOT attach any behavior to the editor.
+
 (function () {
   if (window.initJsRunnerEnhancements) return;
 
-  let editorSuggestionBox = null;
   let inputSuggestionBox = null;
 
   function normalizeInputSuggestion(text) {
@@ -22,13 +24,14 @@
       'async': 'async',
       'await': 'await'
     };
-    const key = text.toLowerCase();
-    return map[key] || text.toLowerCase();
+    const key = String(text).toLowerCase();
+    return map[key] || key;
   }
   window.normalizeInputSuggestion = normalizeInputSuggestion;
 
   function triggerInputSuggestions(inputEl) {
     try {
+      if (!inputEl) return;
       const keywords = [
         'console.log(',
         'console.error(',
@@ -45,14 +48,16 @@
         'async',
         'await'
       ];
-      const val = inputEl.value;
-      const caret = inputEl.selectionStart;
-      const prefixMatch = val.slice(0, caret).match(/[A-Za-z_$.][A-Za-z0-9_$.]*$/);
+
+      const val = inputEl.value || '';
+      const caret = typeof inputEl.selectionStart === 'number' ? inputEl.selectionStart : val.length;
+      const prefixMatch = val.slice(0, caret).match(/[A-Za-z$.][A-Za-z0-9$.]*$/);
       const prefix = prefixMatch ? prefixMatch[0] : '';
       const prefixLower = prefix.toLowerCase();
       const matches = prefix
         ? keywords.filter(k => k.toLowerCase().startsWith(prefixLower) && k.toLowerCase() !== prefixLower).slice(0, 8)
         : [];
+
       if (!matches.length) { hideInputSuggestions(); return; }
 
       if (!inputSuggestionBox) {
@@ -62,12 +67,21 @@
         inputSuggestionBox.style.position = 'fixed';
         inputSuggestionBox.style.display = 'none';
         document.body.appendChild(inputSuggestionBox);
+
+        // click outside hides suggestions
+        document.addEventListener('click', (e) => {
+          if (!inputSuggestionBox) return;
+          if (e.target.closest('.js-runner-input-suggestions')) return;
+          hideInputSuggestions();
+        });
       }
+
       inputSuggestionBox.innerHTML = '';
-      matches.forEach((m) => {
+      matches.forEach((m, i) => {
         const el = document.createElement('div');
         el.className = 'js-runner-input-suggestion';
         el.textContent = m;
+        el.dataset.index = i;
         el.onclick = () => {
           const normalized = normalizeInputSuggestion(m);
           inputEl.value = normalized;
@@ -78,6 +92,7 @@
         };
         inputSuggestionBox.appendChild(el);
       });
+
       const rect = inputEl.getBoundingClientRect();
       let left = rect.left + window.scrollX;
       let top = rect.bottom + window.scrollY;
@@ -93,182 +108,35 @@
       inputSuggestionBox.style.top = top + 'px';
       inputSuggestionBox.style.minWidth = boxWidth + 'px';
       inputSuggestionBox.style.display = 'block';
-      window.__jsRunner_inputSuggestionBox = inputSuggestionBox;
+
+      // expose for main.js keyboard handler
       window.jsRunner_inputSuggestionBox = inputSuggestionBox;
-    } catch (e) {}
+    } catch (e) {
+      // silent
+    }
   }
   window.triggerInputSuggestions = triggerInputSuggestions;
 
   function hideInputSuggestions() {
-    if (inputSuggestionBox) inputSuggestionBox.style.display = 'none';
+    try {
+      if (inputSuggestionBox) inputSuggestionBox.style.display = 'none';
+    } catch (e) {}
   }
   window.hideInputSuggestions = hideInputSuggestions;
 
-  function setupEditorEnhancements(editorManager) {
-    try {
-      const editor = editorManager && editorManager.editor;
-      if (!editor) return;
-
-      const keywords = [
-        'function','const','let','var','console.log(','console.error(','console.warn(','return','if','else','for','while',
-        'async','await','=>','class','new','try','catch','finally','switch','case','break','continue','import','from','export','default','typeof','instanceof',
-        'document','window','setTimeout','setInterval','Promise','Array','Object','Map'
-      ];
-      const canonical = {};
-      keywords.forEach(k => canonical[k.toLowerCase()] = k);
-
-      if (!editorSuggestionBox) {
-        editorSuggestionBox = document.createElement('div');
-        editorSuggestionBox.className = 'js-runner-suggestions';
-        editorSuggestionBox.style.display = 'none';
-        editorSuggestionBox.style.zIndex = '12000';
-        document.body.appendChild(editorSuggestionBox);
-      }
-
-      const showEditorSuggestions = function(list, coords) {
-        editorSuggestionBox.innerHTML = '';
-        list.forEach((item, idx) => {
-          const el = document.createElement('div');
-          el.className = 'js-runner-suggestion';
-          el.textContent = canonical[item.toLowerCase()] || item.toLowerCase();
-          el.dataset.index = idx;
-          el.onclick = () => applyEditorSuggestion(canonical[item.toLowerCase()] || item.toLowerCase());
-          editorSuggestionBox.appendChild(el);
-        });
-
-        const left = (coords && (coords.pageX !== undefined ? coords.pageX : coords.x)) || 0;
-        const top = (coords && (coords.pageY !== undefined ? coords.pageY : coords.y)) || 0;
-        editorSuggestionBox.style.left = (left + window.scrollX) + 'px';
-        editorSuggestionBox.style.top = (top + 20 + window.scrollY) + 'px';
-        editorSuggestionBox.style.display = list.length ? 'block' : 'none';
-      };
-
-      const hideEditorSuggestions = function() { if (editorSuggestionBox) editorSuggestionBox.style.display = 'none'; };
-
-      const applyEditorSuggestion = function(text) {
-        const pos = editor.getCursorPosition();
-        const line = editor.session.getLine(pos.row);
-        const prefixMatch = line.slice(0, pos.column).match(/[A-Za-z_$][A-Za-z0-9_$]*$/);
-        const prefix = prefixMatch ? prefixMatch[0] : '';
-        const startCol = pos.column - prefix.length;
-
-        let insertText = text;
-        if (text.endsWith('(')) insertText = text + ')';
-
-        editor.session.replace({ start: { row: pos.row, column: startCol }, end: pos }, insertText);
-
-        if (insertText.indexOf('(') !== -1) {
-          const newCol = startCol + insertText.indexOf('(') + 1;
-          editor.moveCursorTo(pos.row, newCol);
-        } else {
-          const newCol = startCol + insertText.length;
-          editor.moveCursorTo(pos.row, newCol);
-        }
-        editor.focus();
-        hideEditorSuggestions();
-      };
-
-      const computeAndShowSuggestions = function() {
-        try {
-          const pos = editor.getCursorPosition();
-          const line = editor.session.getLine(pos.row);
-          const prefixMatch = line.slice(0, pos.column).match(/[A-Za-z_$][A-Za-z0-9_$]*$/);
-          const prefix = prefixMatch ? prefixMatch[0] : '';
-          if (!prefix) { hideEditorSuggestions(); return; }
-          const prefixLower = prefix.toLowerCase();
-          const matches = Object.keys(canonical).filter(k => k.startsWith(prefixLower) && k !== prefixLower).slice(0, 12);
-          if (!matches.length) { hideEditorSuggestions(); return; }
-          const coords = editor.renderer.textToScreenCoordinates(pos.row, pos.column);
-          const pageX = (coords && coords.pageX !== undefined) ? coords.pageX : (coords && coords.x !== undefined ? coords.x : 0);
-          const pageY = (coords && coords.pageY !== undefined) ? coords.pageY : (coords && coords.y !== undefined ? coords.y : 0);
-          showEditorSuggestions(matches, { pageX, pageY });
-        } catch (err) {
-          // silent
-        }
-      };
-
-      editor.on('change', function(delta) {
-        try {
-          if (delta.action === 'insert' && delta.lines && delta.lines.length === 1 && delta.lines[0].length === 1) {
-            const ch = delta.lines[0];
-            const pairs = { '(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '`': '`' };
-            if (pairs[ch]) {
-              const pos = editor.getCursorPosition();
-              editor.session.insert(pos, pairs[ch]);
-              editor.moveCursorTo(pos.row, pos.column);
-            }
-          }
-        } catch (err) {}
-        computeAndShowSuggestions();
-      });
-
-      const textInput = (editor.textInput && editor.textInput.getElement && editor.textInput.getElement()) || editor.container;
-      if (textInput) {
-        const debounced = debounce(() => computeAndShowSuggestions(), 60);
-        textInput.addEventListener('input', debounced);
-        textInput.addEventListener('keyup', debounced);
-
-        textInput.addEventListener('keydown', (e) => {
-          if (editorSuggestionBox && editorSuggestionBox.style.display === 'block') {
-            if (['ArrowDown','ArrowUp','Enter','Escape'].includes(e.key)) {
-              e.preventDefault();
-              const items = Array.from(editorSuggestionBox.querySelectorAll('.js-runner-suggestion'));
-              if (!items.length) return;
-              let active = editorSuggestionBox.querySelector('.js-runner-suggestion.active');
-              let idx = active ? items.indexOf(active) : -1;
-              if (e.key === 'ArrowDown') idx = idx < items.length - 1 ? idx + 1 : 0;
-              else if (e.key === 'ArrowUp') idx = idx > 0 ? idx - 1 : items.length - 1;
-              else if (e.key === 'Enter') { if (idx === -1) idx = 0; applyEditorSuggestion(items[idx].textContent); return; }
-              else if (e.key === 'Escape') { hideEditorSuggestions(); return; }
-              items.forEach(it => it.classList.remove('active'));
-              items[idx].classList.add('active');
-              return;
-            }
-          }
-
-          const pairs = { '(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '`': '`' };
-          if (e.key in pairs && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            const selRange = editor.getSelectionRange();
-            if (selRange && (selRange.start.row !== selRange.end.row || selRange.start.column !== selRange.end.column)) {
-              e.preventDefault();
-              const selectedText = editor.session.getTextRange(selRange);
-              const open = e.key;
-              const close = pairs[e.key];
-              editor.session.replace(selRange, open + selectedText + close);
-              editor.selection.setSelectionRange({
-                start: { row: selRange.start.row, column: selRange.start.column + 1 },
-                end: { row: selRange.end.row, column: selRange.end.column + 1 }
-              });
-            }
-          }
-        });
-      }
-
-      editor.container.addEventListener('blur', () => hideEditorSuggestions(), true);
-      document.addEventListener('click', (e) => {
-        if (!editorSuggestionBox) return;
-        if (e.target.closest('.js-runner-suggestions')) return;
-        if (e.target.closest('.ace_editor')) return;
-        hideEditorSuggestions();
-      });
-
-      window.__jsRunner_editorSuggestionBox = editorSuggestionBox;
-    } catch (err) {
-      console.warn('Editor enhancements not available:', err && err.message);
-    }
+  // Autopairing helper for the input element (used by main.js handlers)
+  // Note: main.js already wires beforeinput/keydown handlers; keep this available if needed.
+  function setupInputAutopairing() {
+    // no-op here: main.js already attaches handlers for autopairing.
+    // This function exists so initJsRunnerEnhancements can be called safely.
   }
 
-  function debounce(fn, wait) {
-    let t = null;
-    return function () {
-      clearTimeout(t);
-      t = setTimeout(() => fn.apply(this, arguments), wait);
-    };
-  }
-
+  // initJsRunnerEnhancements is intentionally minimal: it does NOT attach anything to the editor.
   function initJsRunnerEnhancements(editorManager) {
-    try { setupEditorEnhancements(editorManager); } catch (e) {}
+    try {
+      setupInputAutopairing();
+    } catch (e) {}
   }
-
   window.initJsRunnerEnhancements = initJsRunnerEnhancements;
+
 })();
