@@ -5,93 +5,15 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
   let modal = null;
 
   /* ===========================
-     Styles (injected)
+     Styles (external: style.css)
      =========================== */
   (function injectStyles() {
-    const css = `
-      #js-runner-btn {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        z-index: 9999;
-        background: #f7df1e;
-        color: #000;
-        padding: 12px;
-        border-radius: 50%;
-        font-weight: bold;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        cursor: pointer;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        width:52px;
-        height:52px;
-        user-select:none;
-        touch-action: none;
-      }
-      #js-runner-btn:active { transform: scale(0.98); }
-
-      #js-runner-modal {
-        position: fixed;
-        left: 6%;
-        top: 8%;
-        width: 88%;
-        height: 76%;
-        background: #282c34;
-        color: #abb2bf;
-        z-index: 10000;
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-        display: flex;
-        flex-direction: column;
-        -webkit-font-smoothing:antialiased;
-      }
-
-      .js-runner-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; cursor: move; }
-      .js-runner-accent { background:#2AABEE; color:#fff; padding:6px 10px; border-radius:6px; font-weight:600; }
-      #js-runner-output { flex:1; overflow:auto; background:#1e2228; padding:10px; border-radius:8px; border:1px solid #3b3f46; font-family: monospace; font-size:13px; color:#d6deeb; }
-      .js-runner-output-line { padding:4px 6px; white-space:pre-wrap; word-break:break-word; }
-      .js-runner-output-line.err { color:#e06c75; }
-      .js-runner-output-line.warn { color:#e5c07b; }
-
-      .js-runner-input-area { display:flex; margin-top:8px; gap:8px; align-items:center; }
-      .js-runner-input { flex:1; padding:10px; border-radius:8px; border:1px solid #3b3f46; background:#23272b; color:#abb2bf; font-family: monospace; }
-      .js-runner-run { padding:10px 12px; border-radius:8px; background:#2AABEE; color:#fff; border:none; cursor:pointer; }
-      .js-runner-clear { padding:10px 12px; border-radius:8px; background:#e06c75; color:#fff; border:none; cursor:pointer; }
-      .js-runner-small { padding:6px 8px; border-radius:6px; background:transparent; color:#abb2bf; border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
-
-      /* Suggestion boxes (ensure visible above editor UI) */
-      .js-runner-suggestions, .js-runner-input-suggestions {
-        position: fixed;
-        background: #1e2228;
-        color: #d6deeb;
-        border: 1px solid #3b3f46;
-        border-radius: 6px;
-        padding: 6px 0;
-        min-width: 160px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-        font-family: monospace;
-        font-size: 13px;
-        z-index: 12000;
-        max-height: 260px;
-        overflow: auto;
-        pointer-events: auto;
-      }
-      .js-runner-suggestion, .js-runner-input-suggestion {
-        padding: 6px 10px;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-      .js-runner-suggestion.active, .js-runner-input-suggestion.active {
-        background: rgba(42,171,238,0.12);
-        color: #e6eef6;
-      }
-    `;
-    const s = document.createElement('style');
-    s.id = 'js-runner-styles';
-    s.textContent = css;
-    document.head.appendChild(s);
+    const link = document.createElement('link');
+    link.id = 'js-runner-styles';
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = (typeof baseUrl === 'string' ? baseUrl : '') + 'style.css';
+    document.head.appendChild(link);
   })();
 
   /* ===========================
@@ -323,7 +245,8 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       }, 80);
     });
   }
-function closeConsole() {
+
+  function closeConsole() {
     if (!modal) return;
     unhookConsole();
     modal.remove();
@@ -519,6 +442,7 @@ function closeConsole() {
       }
     } catch (e) {}
   }
+
   /* ===========================
      Helpers
      =========================== */
@@ -588,7 +512,7 @@ function closeConsole() {
     return file && file.filename && file.filename.endsWith('.js');
   }
 
-  / Init wiring /
+  /* Init wiring */
   try {
     if (editorManager && editorManager.editor) {
       if (window.initJsRunnerEnhancements) window.initJsRunnerEnhancements(editorManager);

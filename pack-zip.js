@@ -50,6 +50,12 @@ if (fs.existsSync(enhancementsJs)) {
   zip.file('enhancements.js', fs.readFileSync(enhancementsJs));
 }
 
+// Incluir style.css desde src/
+const styleCss = path.join(srcFolder, 'style.css');
+if (fs.existsSync(styleCss)) {
+  zip.file('style.css', fs.readFileSync(styleCss));
+}
+
 zip
   .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
   .pipe(fs.createWriteStream(path.join(__dirname, 'plugin.zip')))
