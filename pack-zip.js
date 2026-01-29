@@ -56,6 +56,12 @@ if (fs.existsSync(styleCss)) {
   zip.file('style.css', fs.readFileSync(styleCss));
 }
 
+// Incluir console-enhancements.js desde src/
+const consoleEnhancementsJs = path.join(srcFolder, 'console-enhancements.js');
+if (fs.existsSync(consoleEnhancementsJs)) {
+  zip.file('console-enhancements.js', fs.readFileSync(consoleEnhancementsJs));
+}
+
 zip
   .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
   .pipe(fs.createWriteStream(path.join(__dirname, 'plugin.zip')))

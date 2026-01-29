@@ -44,15 +44,15 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     };
     console.log = function(...args) {
       try { window.origConsole.log.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
+      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '));
     };
     console.error = function(...args) {
       try { window.origConsole.error.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '), 'err');
+      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '), 'err');
     };
     console.warn = function(...args) {
       try { window.origConsole.warn.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '), 'warn');
+      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '), 'warn');
     };
   }
 

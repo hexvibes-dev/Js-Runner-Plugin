@@ -40,7 +40,7 @@
 }
 
 .js-runner-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; cursor: move; }
-.js-runner-accent { background:#2AABEE; color:#fff; padding:6px 10px; border-radius:6px; font-weight:600; }
+.js-runner-accent { background:purple; color:#fff; padding:6px 10px; border-radius:6px; font-weight:600; }
 #js-runner-output { flex:1; overflow:auto; background:#1e2228; padding:10px; border-radius:8px; border:1px solid #3b3f46; font-family: monospace; font-size:13px; color:#d6deeb; }
 .js-runner-output-line { padding:4px 6px; white-space:pre-wrap; word-break:break-word; }
 .js-runner-output-line.err { color:#e06c75; }
