@@ -44,15 +44,35 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     };
     console.log = function(...args) {
       try { window.origConsole.log.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '));
+      appendOutput(
+        args.map(a =>
+          (typeof a === 'object' && a !== null
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            : String(a))
+        ).join(' ')
+      );
     };
     console.error = function(...args) {
       try { window.origConsole.error.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '), 'err');
+      appendOutput(
+        args.map(a =>
+          (typeof a === 'object' && a !== null
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            : String(a))
+        ).join(' '),
+        'err'
+      );
     };
     console.warn = function(...args) {
       try { window.origConsole.warn.apply(window.origConsole, args); } catch (e) {}
-      appendOutput(args.map(a => (typeof a === 'object' ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a)) : String(a))).join(' '), 'warn');
+      appendOutput(
+        args.map(a =>
+          (typeof a === 'object' && a !== null
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            : String(a))
+        ).join(' '),
+        'warn'
+      );
     };
   }
 
@@ -326,7 +346,14 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       if (!window.origConsole) hookConsole();
       try {
         const res = new Function('"use strict"; return (' + expr + ')')();
-        if (typeof res !== 'undefined') appendOutput(String(res));
+        if (typeof res !== 'undefined') {
+          // Use prettyConsoleFormat for objects if available
+          if (typeof res === 'object' && res !== null) {
+            appendOutput(typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(res) : JSON.stringify(res));
+          } else {
+            appendOutput(String(res));
+          }
+        }
       } catch (inner) {
         try {
           new Function(expr)();

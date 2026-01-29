@@ -1,16 +1,15 @@
-/* style.css (place in same folder as main.js) */
 
 #js-runner-btn {
   position: fixed;
   right: 20px;
   bottom: 20px;
   z-index: 9999;
-  background: #f7df1e;
-  color: #000;
+  background: linear-gradient(135deg, #ff00cc, #3333ff);
+  color: #fff;
   padding: 12px;
   border-radius: 50%;
   font-weight: bold;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 18px rgba(255,0,255,0.6);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -19,9 +18,10 @@
   height: 52px;
   user-select: none;
   touch-action: none;
+  transition: transform 0.3s ease;
 }
 #js-runner-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.95);
 }
 
 #js-runner-modal {
@@ -30,29 +30,29 @@
   top: 8%;
   width: 88%;
   height: 76%;
-  background: #282c34;
-  color: #abb2bf;
+  background: linear-gradient(135deg, #1a002b, #0d1a40, #330033);
+  color: #f0f0f0;
   z-index: 10000;
   padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(255,0,255,0.6), 0 0 40px rgba(0,255,255,0.4);
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
   opacity: 0;
   transform: scale(0.95);
-  animation: fadeIn 0.3s forwards;
+  animation: fadeIn 0.4s forwards;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 #js-runner-modal.closing {
-  animation: fadeOut 0.3s forwards;
+  animation: fadeOutCircle 0.5s forwards;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.85);
   }
   to {
     opacity: 1;
@@ -60,14 +60,16 @@
   }
 }
 
-@keyframes fadeOut {
-  from {
+@keyframes fadeOutCircle {
+  0% {
     opacity: 1;
     transform: scale(1);
+    border-radius: 12px;
   }
-  to {
+  100% {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0);
+    border-radius: 50%;
   }
 }
 
@@ -81,26 +83,28 @@
 }
 
 .js-runner-accent {
-  background: purple;
+  background: linear-gradient(90deg, #ff00cc, #00ffff);
   color: #fff;
   padding: 6px 10px;
   border-radius: 6px;
   font-weight: 600;
+  text-shadow: 0 0 6px rgba(255,255,255,0.8);
 }
 
 #js-runner-output {
   flex: 1;
   overflow: auto;
-  background: #1e2228;
+  background: rgba(20,20,40,0.9);
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #3b3f46;
+  border: 1px solid rgba(255,0,255,0.3);
   font-family: monospace;
   font-size: 13px;
-  color: #d6deeb;
-  user-select: text;       /* permite copiar/pegar */
-  white-space: pre-wrap;   /* mantiene saltos de línea */
-  word-break: break-word;  /* evita romper layout */
+  color: #00ffff;
+  user-select: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: inset 0 0 12px rgba(0,255,255,0.3);
 }
 
 .js-runner-output-line {
@@ -114,17 +118,17 @@
 }
 
 .js-runner-output-line.err {
-  color: #e06c75;
+  color: #ff4d6d;
 }
 
 .js-runner-output-line.warn {
-  color: #e5c07b;
+  color: #ffcc00;
 }
 
 @keyframes fadeInLine {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -143,36 +147,39 @@
   flex: 1;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #3b3f46;
-  background: #23272b;
-  color: #abb2bf;
+  border: 1px solid rgba(255,0,255,0.3);
+  background: #0d0d1a;
+  color: #f0f0f0;
   font-family: monospace;
+  box-shadow: inset 0 0 8px rgba(0,255,255,0.3);
 }
 
 .js-runner-run {
   padding: 10px 12px;
   border-radius: 8px;
-  background: #2AABEE;
+  background: linear-gradient(135deg, #00ffff, #3333ff);
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .js-runner-run:hover {
-  background: #1d8ec7;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(0,255,255,0.6);
 }
 
 .js-runner-clear {
   padding: 10px 12px;
   border-radius: 8px;
-  background: #e06c75;
+  background: linear-gradient(135deg, #ff0066, #ffcc00);
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .js-runner-clear:hover {
-  background: #c75461;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255,0,0,0.6);
 }
 
 .js-runner-small {
@@ -180,26 +187,26 @@
   border-radius: 6px;
   background: transparent;
   color: #abb2bf;
-  border: 1px solid rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
   transition: color 0.2s ease, border 0.2s ease;
 }
 .js-runner-small:hover {
   color: #fff;
-  border-color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.6);
 }
 
 /* Suggestion boxes (ensure visible above editor UI) */
 .js-runner-suggestions,
 .js-runner-input-suggestions {
   position: fixed;
-  background: #1e2228;
-  color: #d6deeb;
-  border: 1px solid #3b3f46;
+  background: #0d0d1a;
+  color: #00ffff;
+  border: 1px solid rgba(255,0,255,0.3);
   border-radius: 6px;
   padding: 6px 0;
   min-width: 160px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  box-shadow: 0 0 20px rgba(255,0,255,0.4);
   font-family: monospace;
   font-size: 13px;
   z-index: 12000;
@@ -217,6 +224,6 @@
 
 .js-runner-suggestion.active,
 .js-runner-input-suggestion.active {
-  background: rgba(42,171,238,0.12);
-  color: #e6eef6;
+  background: rgba(0,255,255,0.2);
+  color: #fff;
 }
