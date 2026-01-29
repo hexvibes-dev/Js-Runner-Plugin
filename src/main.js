@@ -173,7 +173,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     modal.innerHTML = `
       <div class="js-runner-header" id="js-runner-header">
         <div style="display:flex;align-items:center;gap:12px">
-          <span class="js-runner-accent">JS Runner</span>
+          <span class="js-runner-accent"> <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em"><path fill="currentColor" d="M32.95 34.95q-.45.45-1.05.425-.6-.025-1.05-.475-.45-.45-.45-1.075t.45-1.075l8.85-8.85-8.8-8.8q-.45-.45-.425-1.075.025-.625.475-1.075.45-.45 1.075-.45t1.075.45l9.85 9.9q.45.45.45 1.05 0 .6-.45 1.05Zm-18-.15-9.9-9.85q-.45-.45-.45-1.05 0-.6.45-1.05l10-10q.45-.45 1.075-.45t1.075.45q.45.45.45 1.075T17.2 15l-8.9 8.9 8.8 8.8q.45.45.45 1.05 0 .6-.45 1.05-.45.45-1.075.45t-1.075-.45Z"/></svg> </span>
           <span style="opacity:.85;font-size:13px">Console</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -183,7 +183,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       </div>
       <div id="js-runner-output"></div>
       <div class="js-runner-input-area">
-        <input id="js-runner-input" class="js-runner-input" placeholder="Escribe una expresión y pulsa Enter" />
+        <input id="js-runner-input" class="js-runner-input" placeholder=". .  ." />
         <button id="js-runner-run" class="js-runner-run" type="button">Run</button>
       </div>
     `;
