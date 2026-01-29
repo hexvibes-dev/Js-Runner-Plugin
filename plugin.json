@@ -2,7 +2,7 @@
   "id": "js-runner",
   "name": "acode-js-runner",
   "displayName": "JS Runner",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "description": "Run JavaScript files with an integrated console (pretty formatting, copy-paste support, fade animations)",
   "main": "main.js",
   "style" : "style.css",

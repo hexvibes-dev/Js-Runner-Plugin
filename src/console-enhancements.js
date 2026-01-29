@@ -1,4 +1,3 @@
-// console-enhancements.js
 (function () {
   if (window.formatForConsole) return;
 
@@ -6,7 +5,7 @@
     const seen = new WeakSet();
 
     function replacer(key, val) {
-      // Map -> entries array
+
       if (val instanceof Map) {
         try {
           return { __type: 'Map', size: val.size, entries: Array.from(val.entries()) };
@@ -15,7 +14,6 @@
         }
       }
 
-      // Set -> values array
       if (val instanceof Set) {
         try {
           return { __type: 'Set', size: val.size, values: Array.from(val.values()) };
@@ -24,29 +22,24 @@
         }
       }
 
-      // Typed arrays -> normal arrays (exclude DataView)
       try {
         if (ArrayBuffer.isView(val) && !(val instanceof DataView)) {
           return Array.from(val);
         }
       } catch (e) {}
 
-      // Date
       if (val instanceof Date) {
         return { __type: 'Date', value: val.toISOString() };
       }
 
-      // RegExp
       if (val instanceof RegExp) {
         return { __type: 'RegExp', value: val.toString() };
       }
 
-      // Function
       if (typeof val === 'function') {
         return { __type: 'Function', name: val.name || '<anonymous>' };
       }
 
-      // Circular refs
       if (val && typeof val === 'object') {
         if (seen.has(val)) return '[Circular]';
         seen.add(val);

@@ -1,12 +1,8 @@
-// main.js
 window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
   const editorManager = window.editorManager;
   let btn = null;
   let modal = null;
 
-  /* ===========================
-     Styles (external: style.css)
-     =========================== */
   (function injectStyles() {
     const link = document.createElement('link');
     link.id = 'js-runner-styles';
@@ -16,9 +12,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     document.head.appendChild(link);
   })();
 
-  /* ===========================
-     Console hooking and output
-     =========================== */
   function appendOutput(text, cls) {
     if (!modal) openConsole();
     const out = modal.querySelector('#js-runner-output');
@@ -86,9 +79,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     window.origConsole = null;
   }
 
-  /* ===========================
-     Button + modal creation
-     =========================== */
   function createButton() {
     if (btn) return;
     btn = document.createElement('div');
@@ -96,7 +86,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     btn.innerText = 'JS';
     document.body.appendChild(btn);
 
-    // Use Pointer events for consistent drag/click behavior across mouse/touch
     let startX = 0, startY = 0;
     let offsetX = 0, offsetY = 0;
     let moved = false;
@@ -154,7 +143,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
 
     btn.addEventListener('pointerdown', onPointerDown, { passive: true });
 
-    // keyboard activation
     btn.tabIndex = 0;
     btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openConsole(); });
   }
@@ -189,7 +177,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     `;
     document.body.appendChild(modal);
 
-    // Attach handlers using addEventListener and stopPropagation on the run button
     const clearBtn = modal.querySelector('#js-runner-clear');
     const closeBtn = modal.querySelector('#js-runner-close');
     const runBtn = modal.querySelector('#js-runner-run');
@@ -197,7 +184,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearOutput(); });
     closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeConsole(); });
 
-    // Run button: behave exactly like the keyboard "arrow/enter" action (runExpression)
     runBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       try {
@@ -210,7 +196,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
           input.value = '';
           if (window.hideInputSuggestions) window.hideInputSuggestions();
         } else {
-          // si prefieres que ejecute el archivo cuando el input está vacío, descomenta la siguiente línea:
           // runFile();
         }
       } catch (err) {
@@ -220,7 +205,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
 
     const input = modal.querySelector('#js-runner-input');
 
-    // input handlers: autopair + suggestions (compatible with enhancements.js)
     input.addEventListener('keydown', inputKeyDownHandler);
     input.addEventListener('beforeinput', inputBeforeInputHandler);
     let lastValue = input.value;
@@ -246,21 +230,17 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
 
     input.addEventListener('blur', () => setTimeout(() => { if (window.hideInputSuggestions) window.hideInputSuggestions(); }, 150));
 
-    // ensure console hooked
     hookConsole();
 
-    // make modal draggable by header
     const header = modal.querySelector('#js-runner-header');
     makeElementDraggable(modal, header);
 
-    // load enhancements.js if present and initialize editor enhancements
-    // call init after a short delay to ensure editor is ready and suggestions DOM can attach
     loadEnhancementsScript(() => {
       setTimeout(() => {
         if (window.initJsRunnerEnhancements) {
           try { window.initJsRunnerEnhancements(editorManager); } catch (e) {}
         }
-        // Ejecutar automáticamente el archivo activo al abrir la consola
+
         try { if (typeof runActiveFile === 'function') runActiveFile(); } catch (e) {}
       }, 80);
     });
@@ -273,9 +253,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     modal = null;
   }
 
-  /* ===========================
-     Execution helpers
-     =========================== */
   function runFile() {
     try {
       const editor = editorManager && editorManager.editor;
@@ -293,15 +270,12 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
         return;
       }
 
-      // ensure console hooked and modal open before executing
       if (!modal) openConsole();
       if (!window.origConsole) hookConsole();
 
       try {
-        // Ejecutar y dejar que las llamadas a console.* sean capturadas por hookConsole
         new Function(code)();
       } catch (execErr) {
-        // Mostrar error en la consola del modal
         console.error(execErr && execErr.stack ? execErr.stack : String(execErr));
       }
     } catch (e) {
@@ -309,7 +283,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     }
   }
 
-  // --- INCORPORACIÓN: runActiveFile (desde run.js) ---
   function runActiveFile() {
     try {
       const editorManagerLocal = window.editorManager;
@@ -328,7 +301,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
         return;
       }
 
-      // Enganchar consola antes de ejecutar
       if (!window.origConsole && typeof hookConsole === 'function') {
         hookConsole();
       }
@@ -338,7 +310,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       console.error(e && e.stack ? e.stack : String(e));
     }
   }
-  // --- FIN INCORPORACIÓN ---
 
   function runExpression(expr) {
     try {
@@ -347,7 +318,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       try {
         const res = new Function('"use strict"; return (' + expr + ')')();
         if (typeof res !== 'undefined') {
-          // Use prettyConsoleFormat for objects if available
           if (typeof res === 'object' && res !== null) {
             appendOutput(typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(res) : JSON.stringify(res));
           } else {
@@ -366,9 +336,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     }
   }
 
-  /* ===========================
-     Input handlers (autopair + suggestions navigation)
-     =========================== */
   function inputBeforeInputHandler(e) {
     try {
       const inputEl = e.target;
@@ -470,9 +437,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     } catch (e) {}
   }
 
-  /* ===========================
-     Helpers
-     =========================== */
   function makeElementDraggable(el, handle) {
     if (!el || !handle) return;
     let startX = 0, startY = 0, origLeft = 0, origTop = 0;
@@ -539,7 +503,6 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
     return file && file.filename && file.filename.endsWith('.js');
   }
 
-  /* Init wiring */
   try {
     if (editorManager && editorManager.editor) {
       if (window.initJsRunnerEnhancements) window.initJsRunnerEnhancements(editorManager);

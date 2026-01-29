@@ -1,7 +1,3 @@
-// enhancements.js (input-only suggestions + autopairing)
-// This trimmed version provides suggestions and autopairing only for the console input.
-// It does NOT attach any behavior to the editor.
-
 (function () {
   if (window.initJsRunnerEnhancements) return;
 
@@ -67,8 +63,6 @@
         inputSuggestionBox.style.position = 'fixed';
         inputSuggestionBox.style.display = 'none';
         document.body.appendChild(inputSuggestionBox);
-
-        // click outside hides suggestions
         document.addEventListener('click', (e) => {
           if (!inputSuggestionBox) return;
           if (e.target.closest('.js-runner-input-suggestions')) return;
@@ -109,11 +103,8 @@
       inputSuggestionBox.style.minWidth = boxWidth + 'px';
       inputSuggestionBox.style.display = 'block';
 
-      // expose for main.js keyboard handler
       window.jsRunner_inputSuggestionBox = inputSuggestionBox;
-    } catch (e) {
-      // silent
-    }
+    } catch (e) {}
   }
   window.triggerInputSuggestions = triggerInputSuggestions;
 
@@ -124,14 +115,8 @@
   }
   window.hideInputSuggestions = hideInputSuggestions;
 
-  // Autopairing helper for the input element (used by main.js handlers)
-  // Note: main.js already wires beforeinput/keydown handlers; keep this available if needed.
-  function setupInputAutopairing() {
-    // no-op here: main.js already attaches handlers for autopairing.
-    // This function exists so initJsRunnerEnhancements can be called safely.
-  }
+  function setupInputAutopairing() {}
 
-  // initJsRunnerEnhancements is intentionally minimal: it does NOT attach anything to the editor.
   function initJsRunnerEnhancements(editorManager) {
     try {
       setupInputAutopairing();
