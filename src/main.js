@@ -3,6 +3,45 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
   let btn = null;
   let modal = null;
 
+  // Mini util.inspect funcional (estilo Node)
+  function utilInspect(value, depth = 2, seen = new WeakSet()) {
+    try {
+      if (value === null) return 'null';
+      if (typeof value === 'undefined') return 'undefined';
+      if (typeof value === 'string') return `"${value}"`;
+      if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+      if (typeof value === 'function') return `Function(${value.name || '<anonymous>'})`;
+      if (value instanceof Date) return `Date("${value.toISOString()}")`;
+      if (value instanceof RegExp) return value.toString();
+      if (seen.has(value)) return '[Circular]';
+      // marcar como visto solo para objetos/colecciones
+      if (typeof value === 'object' && value !== null) seen.add(value);
+
+      if (value instanceof Map) {
+        const parts = [...value.entries()].map(([k, v]) => `${utilInspect(k, depth - 1, seen)} => ${utilInspect(v, depth - 1, seen)}`);
+        return `Map(${value.size}) { ${parts.join(', ')} }`;
+      }
+      if (value instanceof Set) {
+        const parts = [...value.values()].map(v => utilInspect(v, depth - 1, seen));
+        return `Set(${value.size}) { ${parts.join(', ')} }`;
+      }
+      if (Array.isArray(value)) {
+        if (depth <= 0) return `Array(${value.length}) [ ... ]`;
+        const parts = value.map(v => utilInspect(v, depth - 1, seen));
+        return `Array(${value.length}) [ ${parts.join(', ')} ]`;
+      }
+      if (typeof value === 'object') {
+        if (depth <= 0) return '{ ... }';
+        const entries = Object.entries(value).map(([k, v]) => `${k}: ${utilInspect(v, depth - 1, seen)}`);
+        return `{ ${entries.join(', ')} }`;
+      }
+      return String(value);
+    } catch (err) {
+      return '[Unserializable]';
+    }
+  }
+  window.utilInspect = utilInspect;
+
   (function injectStyles() {
     const link = document.createElement('link');
     link.id = 'js-runner-styles';
@@ -40,7 +79,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       appendOutput(
         args.map(a =>
           (typeof a === 'object' && a !== null
-            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : utilInspect(a))
             : String(a))
         ).join(' ')
       );
@@ -50,7 +89,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       appendOutput(
         args.map(a =>
           (typeof a === 'object' && a !== null
-            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : utilInspect(a))
             : String(a))
         ).join(' '),
         'err'
@@ -61,7 +100,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       appendOutput(
         args.map(a =>
           (typeof a === 'object' && a !== null
-            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : JSON.stringify(a))
+            ? (typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(a) : utilInspect(a))
             : String(a))
         ).join(' '),
         'warn'
@@ -171,7 +210,7 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       </div>
       <div id="js-runner-output"></div>
       <div class="js-runner-input-area">
-        <input id="js-runner-input" class="js-runner-input" placeholder=". .  ." />
+        <input id="js-runner-input" class="js-runner-input" placeholder=">_" />
         <button id="js-runner-run" class="js-runner-run" type="button">Run</button>
       </div>
     `;
@@ -318,8 +357,9 @@ window.acode.setPluginInit("js-runner", (baseUrl, $page, cache) => {
       try {
         const res = new Function('"use strict"; return (' + expr + ')')();
         if (typeof res !== 'undefined') {
+          // preferir prettyConsoleFormat si existe, si no usar utilInspect
           if (typeof res === 'object' && res !== null) {
-            appendOutput(typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(res) : JSON.stringify(res));
+            appendOutput(typeof window.prettyConsoleFormat === 'function' ? window.prettyConsoleFormat(res) : utilInspect(res));
           } else {
             appendOutput(String(res));
           }
